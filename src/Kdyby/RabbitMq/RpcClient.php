@@ -61,19 +61,19 @@ class RpcClient extends AmqpMember
 
 
 
-	public function addRequest($msgBody, $server, $requestId = null, $routingKey = '', $expiration = 0)
+	public function addRequest($msgBody, $server, $requestId = null, $routingKey = '', $expiration = 0, array $properties = [])
 	{
 		if (empty($requestId)) {
 			throw new \InvalidArgumentException('You must provide a $requestId');
 		}
 
-		$msg = new AMQPMessage($msgBody, [
+		$msg = new AMQPMessage($msgBody, array_merge([
 			'content_type' => $this->contentType,
 			'reply_to' => $this->queueName,
 			'delivery_mode' => 1, // non durable
 			'expiration' => $expiration * 1000,
 			'correlation_id' => $requestId
-		]);
+		], $properties));
 
 		$this->getChannel()->basic_publish($msg, $server, $routingKey);
 
